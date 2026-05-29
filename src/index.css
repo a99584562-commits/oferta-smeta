@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-surface-0 text-ink-800 font-sans antialiased;
+    background-image:
+      radial-gradient(1200px 800px at 110% -10%, rgba(155, 215, 48, 0.10), transparent 60%),
+      radial-gradient(900px 700px at -10% 110%, rgba(127, 190, 26, 0.06), transparent 60%);
+    background-attachment: fixed;
+    font-feature-settings: "ss01", "cv11";
+    letter-spacing: -0.005em;
+  }
+  ::selection { background: rgba(155, 215, 48, 0.35); color: #0B0E0A; }
+  /* film grain */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.025;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+}
+
+@layer components {
+  /* Double-bezel shell */
+  .shell {
+    @apply bg-surface-50 ring-1 ring-ink-900/[0.05] rounded-4xl p-1.5 shadow-soft;
+  }
+  .shell-inner {
+    @apply bg-surface-100 rounded-[calc(2rem-0.375rem)] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)];
+  }
+  .shell-sm {
+    @apply bg-surface-50 ring-1 ring-ink-900/[0.05] rounded-2xl p-1 shadow-soft-sm;
+  }
+  .shell-sm-inner {
+    @apply bg-surface-100 rounded-[calc(1rem-0.25rem)];
+  }
+  .hairline { @apply border-t border-ink-900/[0.06]; }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] font-semibold;
+    @apply bg-lime-50 text-lime-700 ring-1 ring-lime-200/70;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 pl-5 pr-1.5 py-1.5 rounded-full;
+    @apply bg-ink-900 text-surface-0 text-sm font-medium;
+    @apply transition-all duration-500 ease-spring;
+    @apply hover:bg-ink-800 active:scale-[0.98];
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px -10px rgba(11,14,10,0.6);
+  }
+  .btn-primary .ico {
+    @apply w-7 h-7 rounded-full bg-lime-400 text-ink-900 grid place-items-center;
+    @apply transition-all duration-500 ease-spring;
+  }
+  .btn-primary:hover .ico {
+    transform: translate(1px, -1px) scale(1.05);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium;
+    @apply text-ink-700 ring-1 ring-ink-900/[0.08] bg-surface-100;
+    @apply transition-all duration-500 ease-spring hover:bg-surface-50 hover:ring-ink-900/[0.12];
+    @apply active:scale-[0.98];
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+    @apply text-ink-700 ring-1 ring-ink-900/[0.08] bg-surface-100;
+    @apply transition-all duration-300 ease-spring cursor-pointer;
+    @apply hover:ring-ink-900/[0.15] hover:bg-surface-50;
+  }
+  .chip-active {
+    @apply bg-ink-900 text-surface-0 ring-ink-900;
+  }
+
+  .field {
+    @apply w-full bg-transparent text-ink-900 placeholder:text-ink-400;
+    @apply text-sm font-medium px-3 py-2 rounded-xl;
+    @apply ring-1 ring-ink-900/[0.06] focus:ring-ink-900/[0.18];
+    @apply outline-none transition-all duration-300 ease-spring;
+  }
+  .field-bare {
+    @apply w-full bg-transparent text-ink-900 placeholder:text-ink-400 text-sm font-medium outline-none;
+  }
+
+  .num { @apply font-mono tabular-nums; }
+
+  .row-strip {
+    @apply grid grid-cols-12 gap-2 items-center px-3 py-2.5 rounded-xl;
+    @apply transition-colors duration-300 ease-spring hover:bg-surface-50;
+  }
+
+  .reveal {
+    animation: reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(12px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+  }
+}
