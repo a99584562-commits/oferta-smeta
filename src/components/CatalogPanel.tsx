@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
-import { blocksMeta, catalog, useStore } from '../store'
-import { IcoPlus, IcoSearch } from './Icons'
+import { blocksMeta, buildCatalog, useStore } from '../store'
+import { IcoArrow, IcoPlus, IcoSearch } from './Icons'
 import { fmt } from '../lib/calc'
 
-export function Catalog({
+/** Боковая панель для быстрого добавления позиций в активную смету. */
+export function CatalogPanel({
   estimateId,
   targetSectionId,
 }: {
@@ -13,6 +14,10 @@ export function Catalog({
   const [q, setQ] = useState('')
   const [bid, setBid] = useState<number | null>(null)
   const addRow = useStore((s) => s.addRow)
+  const setView = useStore((s) => s.setView)
+  const overrides = useStore((s) => s.catalogOverrides)
+  const customItems = useStore((s) => s.customItems)
+  const catalog = useMemo(() => buildCatalog(overrides, customItems), [overrides, customItems])
 
   const filtered = useMemo(() => {
     const qq = q.trim().toLowerCase()
@@ -21,7 +26,7 @@ export function Catalog({
       if (qq && !c.name.toLowerCase().includes(qq) && !c.blockName.toLowerCase().includes(qq)) return false
       return true
     })
-  }, [q, bid])
+  }, [q, bid, catalog])
 
   const grouped = useMemo(() => {
     const m = new Map<string, typeof catalog>()
@@ -40,12 +45,17 @@ export function Catalog({
       <div className="shell-inner flex flex-col flex-1 overflow-hidden">
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-baseline justify-between">
-            <span className="eyebrow">Оферта 2026</span>
-            <span className="text-[11px] text-ink-400 num">{catalog.length} позиций</span>
+            <span className="eyebrow">Каталог · быстрый выбор</span>
+            <button
+              onClick={() => setView('catalog')}
+              className="text-[10px] uppercase tracking-[0.18em] text-ink-500 hover:text-ink-900 transition-colors inline-flex items-center gap-1"
+            >
+              Открыть склад <IcoArrow size={11} />
+            </button>
           </div>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-ink-900">Каталог</h2>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-ink-900">База оборудования</h2>
           <p className="mt-1 text-xs text-ink-500">
-            Кликните «+», чтобы добавить позицию в активный раздел сметы.
+            {catalog.length} позиций. «+» добавит в активный раздел сметы.
           </p>
 
           <div className="mt-4 flex items-center gap-2 bg-surface-50 rounded-2xl px-3 py-2 ring-1 ring-ink-900/[0.05]">
@@ -53,7 +63,7 @@ export function Catalog({
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Поиск по 185 позициям…"
+              placeholder={`Поиск по ${catalog.length} позициям…`}
               className="field-bare"
             />
           </div>
@@ -70,7 +80,6 @@ export function Catalog({
                 title={b.name}
               >
                 {shortBlockName(b.name)}
-                <span className="num text-[10px] opacity-60">{b.count}</span>
               </button>
             ))}
           </div>
@@ -94,15 +103,26 @@ export function Catalog({
                 <div className="space-y-1">
                   {items.map((it) => (
                     <div
-                      key={`${it.blockId}-${it.n}-${it.name}`}
+                      key={it.key}
                       className="group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-50 transition-colors duration-300 ease-spring"
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="text-sm text-ink-900 font-medium leading-snug line-clamp-2">{it.name}</div>
+                        <div className="text-sm text-ink-900 font-medium leading-snug line-clamp-2 flex items-center gap-1.5">
+                          {it.name}
+                          {it.edited && (
+                            <span className="text-[9px] uppercase tracking-[0.14em] text-lime-700 bg-lime-50 ring-1 ring-lime-200/70 px-1.5 py-0.5 rounded-full">
+                              правка
+                            </span>
+                          )}
+                          {it.source === 'custom' && (
+                            <span className="text-[9px] uppercase tracking-[0.14em] text-ink-700 bg-surface-200 ring-1 ring-ink-200 px-1.5 py-0.5 rounded-full">
+                              своя
+                            </span>
+                          )}
+                        </div>
                         <div className="text-[11px] text-ink-400 mt-0.5 flex items-center gap-2">
                           <span>{it.unit || '—'}</span>
                           {it.sub && <span className="truncate">· {it.sub}</span>}
-                          {it.comment && <span className="truncate">· {it.comment}</span>}
                         </div>
                       </div>
                       <div className="text-right shrink-0">

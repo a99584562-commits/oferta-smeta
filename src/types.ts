@@ -1,8 +1,35 @@
 export type CatalogItem = {
+  // stable key: для seed-позиций — `s:${blockId}:${n}`; для пользовательских — `u:${id}`
+  key: string
+  source: 'seed' | 'custom'
   blockId: number
   blockName: string
   sub?: string | null
   n: number
+  name: string
+  unit: string
+  priceNoVat: number | null
+  priceVat: number | null
+  comment: string
+  // флаг — есть ли локальные изменения относительно сида
+  edited?: boolean
+}
+
+export type CatalogOverride = {
+  name?: string
+  unit?: string
+  priceNoVat?: number | null
+  priceVat?: number | null
+  comment?: string
+  sub?: string | null
+  blockId?: number
+  archived?: boolean
+}
+
+export type CustomCatalogItem = {
+  id: string
+  blockId: number
+  sub?: string | null
   name: string
   unit: string
   priceNoVat: number | null

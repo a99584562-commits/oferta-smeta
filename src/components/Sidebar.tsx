@@ -1,6 +1,12 @@
-import { useStore } from '../store'
+import { useMemo } from 'react'
+import { buildCatalog, useStore } from '../store'
 import { estimateTotals, fmt } from '../lib/calc'
-import { IcoPlus, IcoSparkle, IcoTrash } from './Icons'
+import type { CatalogOverride, CustomCatalogItem } from '../types'
+import { IcoArrow, IcoPlus, IcoSparkle, IcoTrash } from './Icons'
+
+function useStoreCatalogCount(overrides: Record<string, CatalogOverride>, custom: CustomCatalogItem[]) {
+  return useMemo(() => buildCatalog(overrides, custom).length, [overrides, custom])
+}
 
 export function Sidebar() {
   const estimates = useStore((s) => s.estimates)
@@ -9,6 +15,13 @@ export function Sidebar() {
   const createBlank = useStore((s) => s.createBlank)
   const createFromTemplate = useStore((s) => s.createFromTemplate)
   const removeEstimate = useStore((s) => s.removeEstimate)
+  const setView = useStore((s) => s.setView)
+  const overrides = useStore((s) => s.catalogOverrides)
+  const customItems = useStore((s) => s.customItems)
+  const catalogCount = useStoreCatalogCount(overrides, customItems)
+  const overridesCount = Object.values(overrides).filter(
+    (o) => !o.archived && Object.keys(o).length > 0,
+  ).length
 
   return (
     <aside className="shell h-full flex flex-col">
@@ -18,6 +31,28 @@ export function Sidebar() {
           <h2 className="mt-3 text-2xl font-semibold text-ink-900 tracking-tight">Проекты</h2>
           <p className="mt-1 text-xs text-ink-500">Локально в браузере. Готовы к синхронизации с Б24.</p>
         </div>
+
+        <div className="mx-3 mb-3">
+          <button
+            onClick={() => setView('catalog')}
+            className="group w-full rounded-2xl bg-surface-50 hover:bg-surface-200 ring-1 ring-ink-900/[0.05] hover:ring-ink-900/[0.1] px-4 py-3 transition-all duration-500 ease-spring flex items-center gap-3"
+          >
+            <span className="w-9 h-9 rounded-xl bg-lime-400 text-ink-900 grid place-items-center shrink-0">
+              <IcoSparkle size={16} />
+            </span>
+            <span className="flex-1 text-left">
+              <span className="block text-sm font-semibold text-ink-900">Склад · база</span>
+              <span className="block text-[11px] text-ink-500">
+                {catalogCount} поз. · {overridesCount > 0 ? `${overridesCount} правок` : 'без правок'}
+              </span>
+            </span>
+            <span className="w-7 h-7 rounded-full bg-surface-100 text-ink-900 grid place-items-center transition-transform duration-500 ease-spring group-hover:translate-x-0.5">
+              <IcoArrow size={12} />
+            </span>
+          </button>
+        </div>
+
+        <div className="hairline mx-5" />
 
         <div className="px-3 flex flex-col gap-1.5 pb-3">
           <button onClick={() => createBlank()} className="btn-primary w-full justify-between">
